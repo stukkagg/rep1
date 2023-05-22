@@ -1,39 +1,68 @@
 #!/bin/bash
 
-# Actualizar repositorios
-sudo apt-get update
-
 # Instalar paquetes necesarios
-sudo apt-get install -y slapd ldap-utils
+apt-get update
+apt-get install -y slapd ldap-utils
 
-# Configuración de LDAP
-sudo dpkg-reconfigure slapd
+# Solicitar datos de configuración
+read -p "Introduce el nombre de dominio LDAP (ejemplo: dc=ejemplo,dc=com): " ldapDomain
+read -p "Introduce el nombre de organización LDAP: " ldapOrganization
+read -p "Introduce el nombre de la unidad organizativa personalizada: " customOU
 
-# Crear archivo de configuración
-cat <<EOF | sudo tee /etc/ldap/ldap.conf
-BASE    dc=example,dc=com
-URI     ldap://localhost
+# Configurar slapd
+dpkg-reconfigure slapd
+
+# Crear archivo de configuración para la unidad organizativa personalizada
+cat <<EOF > custom_ou.ldif
+dn: ou=$customOU,$ldapDomain
+objectClass: organizationalUnit
+ou: $customOU
 EOF
 
-# Reiniciar el servicio de LDAP
-sudo systemctl restart slapd.service
+# Importar el archivo LDIF de la unidad organizativa personalizada
+ldapadd -x -D cn=admin,$ldapDomain -W -f custom_ou.ldif
 
-# Agregar una entrada de ejemplo al directorio LDAP
-cat <<EOF | sudo ldapadd -x -D cn=admin,dc=example,dc=com -W
-dn: dc=example,dc=com
+# Solicitar datos para el archivo LDIF personalizado
+read -p "¿Deseas crear un archivo LDIF personalizado? (s/n): " createLDIF
+
+if [ "$createLDIF" == "s" ]; then
+    read -p "Introduce el nombre del archivo LDIF personalizado: " ldifFilename    
+    # Crear el archivo LDIF personalizado
+    cat <<EOF > $ldifFilename    
+# Crear archivo de configuración para la unidad organizativa personalizada
+version: 1
+dn: c=US
 objectClass: top
-objectClass: dcObject
-objectClass: organization
-o: Example Organization
-dc: example
+objectClass: country
 
-dn: cn=admin,dc=example,dc=com
-objectClass: simpleSecurityObject
-objectClass: organizationalRole
-cn: admin
-userPassword: $(slappasswd -s password)
-description: LDAP administrator
+dn: l=San Francisco, c=US
+objectClass: top
+objectClass: locality
+st: San Francisco
+
+dn: ou=Artists, l=San Francisco, c=US
+objectClass: top
+objectClass: organizationalUnit
+telephoneNumber: +1 415 555 0000
+
+dn: cn=Peter Michaels, ou=Artists, l=San Francisco, c=US
+sn: Michaels
+givenname: Peter
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: iNetOrgPerson
+telephonenumber: +1 415 555 0001
+mail: Peter.Michaels@aaa.com
+userpassword: Peter123
+
+dn: ou=$customOU,$ldapDomain
+objectClass: organizationalUnit
+ou: $customOU
 EOF
 
-# Comprobar el contenido del directorio LDAP
-sudo ldapsearch -x -b dc=example,dc=com
+    # Importar el archivo LDIF personalizado
+    ldapadd -x -D cn=admin,$ldapDomain -W -f $ldifFilename
+fi
+
+echo "Configuración y creación de LDIF personalizado completados con éxito."
