@@ -1,0 +1,89 @@
+#SAMBA
+#instalamos samba en el cliente y servidor
+#cliente
+sudo apt-get install smbclient
+#servidor
+sudo apt-get install samba
+#configuramos samba (/etc/samba/smb.conf)
+#en la parte de interfaces tenemos que añadir
+Interfaces = (ip)/24 eth0
+#bajamos hasta la opcion Authentication/Server Role y ponemos
+server role = stndalone server
+#bajamos hasta la opcion de printers y ponemos el publico y administracion
+[publico]
+comment = publico
+path = /srv/samba/publico
+browseable = yes
+printable = no
+guest ok = yes
+read only = no
+create mask = 0700
+directory mask = 0771
+
+[administracion]
+comment = solo para administracion
+path = /srv/samba/administracion
+browseable = yes
+read only = yes
+valid users = @administracion, @jefes
+write list = @administracion
+
+#creamos un usuario compartido en el que 1 usuario 1 grupo de usuarios pueden escribir y todo el mundo leer
+[publico]
+comment = publico
+path = /srv/samba/publico
+browseable = yes
+printable = no
+guest ok = yes
+read only = no
+create mask = 0700
+directory mask = 0771
+writable = yes
+write list = root
+#recurso compartido en el que 2 usuarios tengan permiso de escritura y otros de lectura
+[administracion]
+comment = solo para administracion
+path = /srv/samba/administracion
+browseable = yes
+read only = yes
+guest ok = no
+write list = @administracion
+valid users = @administracion @jefes
+
+#creamos los directorios de (samba, administracion, publico )
+mkdir /srv/samba
+mkdir /srv/samba/administracion
+mkdir /srv/samba/publico
+#configuramos la opcion interfaces dentro de smb.conf
+interfaces = 192.168.0.160/24 eth0
+
+#creamos usuarios para samba dentro de /etc/samba
+sudo adduser (nombre usuario)
+#le ponemos contraseña
+sudo passwd (nombre usuario)
+#configuramos la contraseña
+sudo smbpasswd -a (nombre usuario)
+#creamos usuarios y grupos
+sudo addgroup (nombregrupo1)
+sudo addgroup (nombregrupo2)
+sudo adduser (nombre usuario1)
+sudo passwd (nombre usuario1)
+sudo adduser (nombre usuario2)
+sudo passwd (nombre usuario2)
+
+#metemos los usuarios al grupo
+sudo usermod -g (usuario1 grupo1)
+sudo usermod -g (usuario2 grupo2)
+#crear usuarios locales como usuarios
+sudo smbpasswd -a (usuario1)
+sudo smbpasswd -a (usuario2)
+#Permisos locales adecuados para los recursos compartidos SAMBA
+sudo chmod 775 /srv/samba/(grupo1)
+sudo chown -hR root:(grupo1) srv/samba/(grupo1)
+#revisamos la configuracion de samba
+testparm smb.conf
+#reiniciamos
+sudo systemctl restart smbd.service
+#accedemos desde windowsa por (ejecutar \\ip servidor samba)
+#nos metemso con el (usuario1) y (usuario2)
+#intntamos escribir en ambas carpetas creadas con ambos usuarios

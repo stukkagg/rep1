@@ -1,0 +1,48 @@
+#WINDOWS powershell
+#nueva UOrganizativa
+New-ADOrganizationalUnit -Name “nombre unidad” -Path “DC=Usuario, DC=LOCAL”
+#Nuevo User 
+New-ADUser Name “nombreU” -Accountpassword (Read-Host -AsSecureString “Contraseña”) -Path “OU=Nombre UO, DC=USUARIO, DC=LOCAL”
+#Nuevo Grupo 
+New-ADGroup -Name”nombre grupo” -SamAccountName nombre -GroupCategory Security -GroupScope Global -DisplayName “nombre ”  -Path “OU=nombre UO,DC=Usuario,DC=LOCAL”
+
+#LINUX
+
+#rutas y archivos
+#atributos usuarios basicos
+etc/passwd
+#administracion contraseñas
+etc/shadow
+#lista de grupos creados
+etc/group
+#almacena contraseñas de usuarios
+etc/gshadow
+
+#COMANDO USERADD 
+comando useradd
+useradd (nombreusuario)
+useradd (nombreusuario) -d (ruta donde se creará) 
+useradd user1
+
+#COMANDO GROUPADD
+comando groupadd 
+groupadd (nombre grupo)
+
+#meter a usuario en grupo
+sudo adduser nombreUsuario nombreGrupo
+
+#COMANDO USERMOD 
+#asignar usuarios a otros grupos 
+usermod -aG (nombregrupo) (nombreususario)
+
+#cambiar nombre del usuario 
+usermod -l (nuevonombre) (nombreusuario)
+
+#modificar el nombre del grupo principal del usuario 
+usermod -g (nuevonombredelgrupo) (nombredelgrupo)
+#modificar el grupo principal 
+usermod -g (nuevogrupoprincipal) (grupoprincipal) 
+
+#cambiar nombre de la carpeta usuario 
+usermod -d (ruta de la carpeta con el nuevo nombre) -m (nombre de la carpeta)
+

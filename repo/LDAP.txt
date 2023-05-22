@@ -1,0 +1,80 @@
+#asignamos una ip fija en (sudo nano /etc/netplan/00-installer-config.yaml)
+network:
+ethernets:
+enp03:
+dhcp4: true
+enp03:
+dhcp4: no
+addresses: [ip maquina]
+version: 2
+
+#nos metemos en /etc/hosts y agregamos
+[la ip de antes] ldapserver.alvaro.local
+#actualizamos 
+sudo apt update -y && sudo apt upgrade -y && sudo apt dist-upgrade -y
+#instalamos
+sudo apt install slapd ldap-utils -y
+#configuramos 
+sduo dpkg-reconfigure slapd
+#le damos a no
+#se introduce alvaro.local
+#nombre de la organización (alvaro)
+#le damos a no
+#ejecutamos (sudo slapcat) para mostrar info
+
+#ejecutamos sudo nano ou.idif
+dn: ou=cetys,dc=alvaro,=dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: cetys
+#se importa el fichero con el comando (sudo ldapadd)
+sudo ldapadd -x -D cd=admin,dc=alvaro,dc=local -W -f ou.ldif
+
+#creamos la segunda unidad organizativa
+dn: ou=ufv,dc=alvaro,=dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: ufv
+#se importa otra vez
+sudo ldapadd -x -D cd=admin,dc=alvaro,dc=local -W -f ou2.ldif
+
+#Añadimos grupos y usuarios
+#GRUPOS
+(sudo nano grupo.ldif)
+dn: cn=aso,ou=ufv,dc=alvaro,=dc=local
+objectClass: top
+objectClass: posixGroup
+gidNumber: 10000
+cn: aso
+#se importa otra vez
+sudo ldapadd -x -D cd=admin,dc=alvaro,dc=local -W -f grupo.ldif
+
+#Grupo2 (sudo nano grupo.ldif) 
+dn: cn=iso,ou=cetys,dc=alvaro,=dc=local
+objectClass: top
+objectClass: posixGroup
+gidNumber: 10001
+cn: iso
+#se importa otra vez
+sudo ldapadd -x -D cd=admin,dc=alvaro,dc=local -W -f grupo2.ldif
+
+#USUARIOS
+#creamos el 1º usuario
+sudo nano usuario1.ldif
+dn: uid=alvaro1,ou=cetys,dc=alvaro,=dc=local
+objectClass: top
+objectClass: posixAccount
+objectClass: inetOrgPerson
+objectClass:person
+cn: alvaro1
+ou:cetys
+uidNumber: 2000
+uidNumber: 10000
+homeDirectory: /home/alvaro1
+loginShell /bin/bash
+userPassword: 1234
+sn: alvaro
+mail: alvarocook32@gmail.com
+giveName: alvaro
+#se importa otra vez
+sudo ldapadd -x -D cd=admin,dc=alvaro,dc=local -W -f usuario1.ldif
