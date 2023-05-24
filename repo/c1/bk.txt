@@ -1,0 +1,30 @@
+#Crear un backup de la base de datos
+mysqldump -u root -p  --all-databases > "C:\hola.sql"
+
+#Crear un backup de la base de datos en xml
+mysqldump -u root -p --xml  centroestudios > C:/test.xml
+
+#Crear un backup de la tabla profesores de la base de datos centro estudios
+mysql -u root -p --xml -e "select * from centroestudios.profesores" > "C:\hola2.xml"
+
+#Restablecer el backup
+mysql -u root -p < "C:\hola.sql"
+
+#Establecer variables en caso de que se requiera
+SHOW variables LIKE 'local_infile';
+SET global local_infile=1;
+SET global local_infile=0;
+SET sql_safe_updates=1;
+
+#Cambiar el secure file priv en el my.ini
+secure-file-priv="C:\Program Files\MySQL\MySQL Server 8.0\bin"
+#Reiniciar el servicio mysql80
+
+#Acceder a restablecer el xml
+mysql --local-infile -u root -p centroestudios
+
+#Cargar el XML
+LOAD XML LOCAL INFILE 'C://Program Files//MySQL//MySQL Server 8.0//bin//hola2.xml'
+-> ignore
+-> into table centroestudios.profesor
+-> rows identified by '<row>';

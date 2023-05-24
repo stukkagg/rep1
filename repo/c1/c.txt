@@ -1,0 +1,28 @@
+#OBTENER COSAS (consultas)
+#1 mostrar el dni de los alumnos que suspendieron la 1ºev de dam
+select distinct aa.alumno
+from alumno_asignatura aa
+join asignatura a ON aa.asignatura = a.codigo
+join alumno al on aa.alumno = al.dni
+where a.ciclo = 'DAM' and aa.nota_1Ev < 5;
+
+#2 nombre y apellido qe han suspendido algo en 1ºev tmb el codigo de asignaturas suspensa y nota
+select a.nombre, a.apellido, asig.codigo, aa.nota_1Ev
+from alumno a
+join alumno_asignatura aa on a.dni = aa.alumno
+join asignatura asig on aa.asignatura = asig.codigo
+where aa.nota_1Ev < 5;
+
+#3 obten numero alumnos matriculados en cada aignatura de esmeralda, se obtendra codigo, numero alumnos
+select a.codigo, count(aa.alumno) as num_alumnos
+from asignatura a
+join alumno_asignatura aa on a.codigo = aa.asignatura
+join profesor p on a.profesor = p.dni
+where p.nombre = 'esmeralda' and p.apellido = 'sanz'
+group by a.codigo;
+
+#4 todos los datos de cada asig junto a nota media de esa asignatura en 1ev
+select asignatura.*, avg(alumno_asignatura.nota_1Ev) as nota_media_1Ev
+from asignatura
+inner join alumno_asignatura on asignatura.codigo = alumno_asignatura.asignatura
+group by asignatura.codigo;

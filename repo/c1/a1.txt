@@ -1,0 +1,52 @@
+#1 CREAR BASE DE DATOS aerolinea
+
+create database aerolinea;
+use aerolinea;
+create table aerolinea.avion (
+matricula varchar(9) primary key not null,
+capacidad int (150)not null,
+num_motores int (5)not null,
+tipo_combustible varchar (15)
+);
+Create table aerolinea.vuelo (
+avion varchar (9),
+fecha_ida timestamp,
+fecha_vuelta timestamp default null,
+num_pasajeros timestamp default null,
+ primary key (avion,fecha_ida),
+ foreign key (avion)
+	references aerolinea.avion (matricula)
+    on delete restrict on update cascade
+)
+
+#2 inserta un txt donde los campos están separados por "&" y las tuplas por ">"
+
+#creamos un txt en C:\ProgramData\MySQL\MySQL Server 8.0\Uploads
+#nos metemos en el cmd dentro de workbench 8.0
+#Cargamos el txt en la taba asignatura dentro de mysql
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\directores.txt' into table peliculas.directores fields terminated by '&' lines terminated by '>';
+
+#3 genera un archivo xml con los datos de la peliculas grabadas despued de los 2000
+#nos metemos en mysql desde cmd
+-- xml -e "SELECT* FROM peliculas WHERE anno>2000" > c:/alvaro.xml
+
+#hacerla normal
+mysqldump -u root -p --xml (nombre base de datos.tabla) > (nombre).xml
+#recuperamos el xml
+LOAD XML INFILE '(ruta del).xml' INTO TABLE nombre bbdd y tabla;
+
+#4 haz una copia de seguridad
+mysqldump -u root -p --databases peliculas > "C:/peliculas1.sql"
+#borra la base de datos
+DROP DATABASE peliculas;
+#restaura la base de datos bibliotecas
+mysql -u root -p < C:/peliculas1.sql
+
+#7a añade actor
+INSERT INTO actores (id, nombre, apellido, genero, num_peliculas)
+VALUES (8, 'Penélope', 'Cruz', 'f', NULL);
+
+#7b cambiar numero peliculas por 0
+UPDATE actores
+SET num_peliculas = 0
+WHERE id = 8 nombre = 'Penelope' apellido = 'Cruz';

@@ -1,0 +1,48 @@
+-- Muestra el DNI de los alumnos que tienen alguna asignatura suspensa en la primera evaluación de todos los alumnos de 'DAM'.
+SELECT DISTINCT dni
+FROM alumno
+WHERE dni IN (
+    SELECT alumno
+    FROM alumno_asignatura
+    WHERE asignatura IN (
+        SELECT codigo
+        FROM asignatura
+        WHERE ciclo = 'DAM'
+    ) AND nota_1Ev < 5
+);
+
+-- Obtener el nombre y apellido de los alumnos que han suspendido alguna asignatura en la primera evaluación. Se deberá obtener también el código de la asignatura suspensa y la nota sacada en esa asignatura.
+SELECT alumno.nombre, alumno.apellido, asignatura.codigo, alumno_asignatura.nota_1Ev
+FROM alumno, alumno_asignatura, asignatura
+WHERE alumno.dni = alumno_asignatura.alumno
+  AND alumno_asignatura.asignatura = asignatura.codigo
+  AND nota_1Ev < 5;
+  
+-- Obtener el número de alumnos matriculados en cada una de las asignaturas de Esmeralda Sanz. Se deberá obtener el código de cada asignatura, junto con el número de alumnos matriculados en esa asignatura.
+SELECT a.codigo, COUNT(s.alumno)
+FROM alumno_asignatura s, asignatura a, profesor p 
+WHERE p.dni=a.profesor AND p.nombre='Esmeralda' AND p.apellido='Sanz' AND a.codigo=s.asignatura
+GROUP BY a.codigo;
+
+-- Obtener todos los datos de cada asignatura junto con la nota media de esa asignatura en la primera evaluación.
+SELECT a.*, AVG(aa.nota_1Ev) AS nota_media_primera_evaluacion
+FROM asignatura a
+JOIN alumno_asignatura aa ON a.codigo = aa.asignatura
+GROUP BY a.codigo;
+
+-- Obtener el nombre de la/s asignatura/s con mayor número de alumnos matriculados. Si hay más de una asignatura con el máximo número de alumnos matriculados, se deberán mostrar todas ellas.
+SELECT a.nombre
+FROM asignatura a
+WHERE a.codigo IN (
+  SELECT aa.asignatura
+  FROM alumno_asignatura aa
+  GROUP BY aa.asignatura
+  HAVING COUNT(*) = (
+    SELECT MAX(count_alumnos)
+    FROM (
+      SELECT COUNT(*) as count_alumnos
+      FROM alumno_asignatura
+      GROUP BY asignatura
+    ) AS counts
+  )
+);

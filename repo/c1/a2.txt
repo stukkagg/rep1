@@ -1,0 +1,88 @@
+#PRACTICA COPIAS DE SEGURIDAD .sql .xml
+
+#1 realiza copia de seguridad de las bases de datos, eliminalas y recoperalas
+#copia base de datos
+mysql -u root -p --all-databases > c:/db.sql
+#elimar base de datos (dentro de mysql)
+DROP DATABASES IF EXISTS
+#restaura base de datos
+mysql -u root -p < c:/db.sql
+
+#2 crea un txt para 3 asignaturas separe los campos por guiones, cargue el txt  a la tabla asig en la bd
+#creamos un txt en C:\ProgramData\MySQL\MySQL Server 8.0\Uploads
+AYF_M-Matematicas-se estudiará-100-AYF-2-74512365
+AYF_M-Matematicas-se estudiará-100-AYF-2-74512365
+AYF_M-Matematicas-se estudiará-100-AYF-2-74512365
+Cargamos el txt en la taba asignatura dentro de mysql
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\db.txt' into table centroestudios.asignatura
+fields terminated by '-' lines terminated by '\r\n';
+
+#3 copia de seguridad xml
+mysqldump -u root -p --xml centroestudios profesor > profesor_backup.xml
+#borramos la base de datos (dentro de mysql)
+DELETE FROM centroestudios.profesor;
+#restauramos
+LOAD XML INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\profesor_backup.xml' INTO TABLE centroestudios.profesor;) 
+
+#4 aumentamos las horas del primer curso de DAM
+select * from (tabla);
+update (tabla)
+set horas = horas * 1.1
+where codigo IN ('DAM_AC', 'DAM_BBDD', 'DAM_FOL')
+AND curso = 1;
+
+#5 añade columna en la tabla profesor
+ALTER TABLE profesor
+ADD (columna) int default 0
+
+#OBTENER COSAS (consultas)
+#1 mostrar el dni de los alumnos que suspendieron la 1ºev de dam
+select distinct aa.alumno
+from alumno_asignatura aa
+join asignatura a ON aa.asignatura = a.codigo
+join alumno al on aa.alumno = al.dni
+where a.ciclo = 'DAM' and aa.nota_1Ev < 5;
+
+#2 nombre y apellido qe han suspendido algo en 1ºev tmb el codigo de asignaturas suspensa y nota
+select a.nombre, a.apellido, asig.codigo, aa.nota_1Ev
+from alumno a
+join alumno_asignatura aa on a.dni = aa.alumno
+join asignatura asig on aa.asignatura = asig.codigo
+where aa.nota_1Ev < 5;
+
+#3 obten numero alumnos matriculados en cada aignatura de esmeralda, se obtendra codigo, numero alumnos
+select a.codigo, count(aa.alumno) as num_alumnos
+from asignatura a
+join alumno_asignatura aa on a.codigo = aa.asignatura
+join profesor p on a.profesor = p.dni
+where p.nombre = 'esmeralda' and p.apellido = 'sanz'
+group by a.codigo;
+
+#4 todos los datos de cada asig junto a nota media de esa asignatura en 1ev
+select asignatura.*, avg(alumno_asignatura.nota_1Ev) as nota_media_1Ev
+from asignatura
+inner join alumno_asignatura on asignatura.codigo = alumno_asignatura.asignatura
+group by asignatura.codigo;
+
+#PRACTICA CREACION BBDD
+#1 creamos la bbdd
+create database if not exists taller;
+use taller;
+
+#2 creamos la tabla con columnas y datos
+create table if not exists (tabla) (
+(colum1 subrayada) varchar (7) primary key not null,
+(colum2) varchar (20),
+(colum3) varchar (20),
+(colum4) varchar (20),
+) engine = InnoDB default charset = latin1;
+
+#3 creamos la tabla con columnas y datos y fecha
+create table if not exists (tabla) (
+fecha timestamp not null default current_timestamp,
+(colum2 subrayada 2 veces) varchar (100) not null,
+(colum3) boolean, 
+(colum3) boolean, 
+(colum3) boolean, 
+foreing key (nombre tabla arriba) references taller.coche (tabla de arriva la subrayada)
+) engine = InnoDB default charset = latin1;
